@@ -7,18 +7,18 @@
 
 -define(DEFAULT_TIMEOUT, 60000).
 
-get(Pid, Bucket, Key, ClusterID) ->
-    get(Pid, Bucket, Key, ClusterID, [], ?DEFAULT_TIMEOUT).
+get(Pid, Bucket, Key, ClusterName) ->
+    get(Pid, Bucket, Key, ClusterName, [], ?DEFAULT_TIMEOUT).
 
-get(Pid, Bucket, Key, ClusterID, Timeout) when is_integer(Timeout);
+get(Pid, Bucket, Key, ClusterName, Timeout) when is_integer(Timeout);
         Timeout == infinity ->
-    get(Pid, Bucket, Key, ClusterID, [], Timeout);
-get(Pid, Bucket, Key, ClusterID, Options) ->
-    get(Pid, Bucket, Key, ClusterID, Options, ?DEFAULT_TIMEOUT).
+    get(Pid, Bucket, Key, ClusterName, [], Timeout);
+get(Pid, Bucket, Key, ClusterName, Options) ->
+    get(Pid, Bucket, Key, ClusterName, Options, ?DEFAULT_TIMEOUT).
 
-get(Pid, Bucket, Key, ClusterID, Options, Timeout) ->
+get(Pid, Bucket, Key, ClusterName, Options, Timeout) ->
     Req = get_options(Options, #rpbreplgetreq{bucket = Bucket, key = Key,
-            cluster_id = ClusterID}),
+            cluster_name = ClusterName}),
     EReq = riak_repl_pb:encode(Req),
     gen_server:call(Pid, {req, <<128, EReq/binary>>, Timeout}, infinity).
 

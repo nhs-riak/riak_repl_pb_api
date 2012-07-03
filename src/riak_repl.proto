@@ -3,7 +3,7 @@
 message RpbReplGetReq {
     required bytes bucket = 1;
     required bytes key = 2;
-    required bytes cluster_id = 3;
+    required bytes cluster_name = 3;
     optional uint32 r = 4;
     optional uint32 pr = 5;
     optional bool basic_quorum = 6;
