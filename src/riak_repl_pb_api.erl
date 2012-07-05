@@ -1,7 +1,12 @@
-
+%% Riak Enterprise Multi Data Center
+%% Copyright (c) 2012 Basho Technologies, Inc.  All Rights Reserved.
+%%
 -module(riak_repl_pb_api).
 
 -include("riak_repl_pb.hrl").
+
+%% Tunneled proxy-get (over the erlang client api)
+-define(PB_MSG_PROXY_GET, 128).
 
 -export([get/4, get/5, get/6]).
 
@@ -11,16 +16,22 @@ get(Pid, Bucket, Key, ClusterName) ->
     get(Pid, Bucket, Key, ClusterName, [], ?DEFAULT_TIMEOUT).
 
 get(Pid, Bucket, Key, ClusterName, Timeout) when is_integer(Timeout);
-        Timeout == infinity ->
+                                                 Timeout == infinity ->
     get(Pid, Bucket, Key, ClusterName, [], Timeout);
 get(Pid, Bucket, Key, ClusterName, Options) ->
     get(Pid, Bucket, Key, ClusterName, Options, ?DEFAULT_TIMEOUT).
 
 get(Pid, Bucket, Key, ClusterName, Options, Timeout) ->
     Req = get_options(Options, #rpbreplgetreq{bucket = Bucket, key = Key,
-            cluster_name = ClusterName}),
+                                              cluster_name = ClusterName}),
     EReq = riak_repl_pb:encode(Req),
-    gen_server:call(Pid, {req, <<128, EReq/binary>>, Timeout}, infinity).
+    case gen_server:call(Pid, {req, <<?PB_MSG_PROXY_GET, EReq/binary>>, Timeout}, infinity) of
+        %% The stock riak-erlang-client doesn't understand our tunneled message,
+        %% but that's ok. We peel off the error wrapper and return repl's tunneled reply.
+        {error, {unknown_response, _Request, Reply}} ->
+            Reply;
+        R -> R
+    end.
 
 %%% internal functions
 
