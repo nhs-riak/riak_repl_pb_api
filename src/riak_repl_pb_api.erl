@@ -7,8 +7,10 @@
 
 %% Tunneled proxy-get (over the erlang client api)
 -define(PB_MSG_PROXY_GET, 128).
+-define(PB_MSG_GET_CLUSTER_ID, 129).
 
--export([get/4, get/5, get/6]).
+-export([get/4, get/5, get/6,
+         get_clusterid/1, get_clusterid/2]).
 
 -define(DEFAULT_TIMEOUT, 60000).
 
@@ -23,15 +25,16 @@ get(Pid, Bucket, Key, ClusterName, Options) ->
 
 get(Pid, Bucket, Key, ClusterName, Options, Timeout) ->
     Req = get_options(Options, #rpbreplgetreq{bucket = Bucket, key = Key,
-                                              cluster_name = ClusterName}),
-    EReq = riak_repl_pb:encode(Req),
-    case gen_server:call(Pid, {req, <<?PB_MSG_PROXY_GET, EReq/binary>>, Timeout}, infinity) of
-        %% The stock riak-erlang-client doesn't understand our tunneled message,
-        %% but that's ok. We peel off the error wrapper and return repl's tunneled reply.
-        {error, {unknown_response, _Request, Reply}} ->
-            Reply;
-        R -> R
-    end.
+                                              cluster_id = ClusterName}),
+    Pkt = riak_repl_pb:encode(Req),
+    riakc_pb_socket:tunnel(Pid, ?PB_MSG_PROXY_GET, Pkt, Timeout).
+
+%% @doc Send a request to get the cluster id (unique cluster name with timestamp)
+get_clusterid(Pid) ->
+    get_clusterid(Pid, ?DEFAULT_TIMEOUT).
+
+get_clusterid(Pid, Timeout) ->
+    riakc_pb_socket:tunnel(Pid, ?PB_MSG_GET_CLUSTER_ID, <<>>, Timeout).
 
 %%% internal functions
 
