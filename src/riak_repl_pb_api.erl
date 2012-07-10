@@ -3,6 +3,8 @@
 %%
 -module(riak_repl_pb_api).
 
+-include_lib("riak_pb/include/riak_pb.hrl").
+-include_lib("riak_pb/include/riak_kv_pb.hrl").
 -include("riak_repl_pb.hrl").
 
 %% Tunneled proxy-get (over the erlang client api)
@@ -30,17 +32,28 @@ get(Pid, Bucket, Key, ClusterName, Options, Timeout) ->
     Pkt = riak_repl_pb:encode(Req),
     {ok, {MsgCode, Msg}} = riakc_pb_socket:tunnel(Pid, ?PB_MSG_PROXY_GET, Pkt,
         Timeout),
-    {ok, riak_pb_codec:decode(MsgCode, Msg)}.
+    case riak_pb_codec:decode(MsgCode, Msg) of
+        #rpbgetresp{content = RpbContents, vclock = Vclock} ->
+            Contents = riak_pb_kv_codec:decode_contents(RpbContents),
+            {ok, riakc_obj:new_obj(Bucket, Key, Vclock, Contents)};
+        Other -> Other %% this is likely the {error, notfound} response
+    end.
 
-%% @doc Send a request to get the cluster id (unique cluster name with timestamp)
+%% @doc Get the cluster id (unique cluster name with timestamp) of the local cluster
+-spec get_clusterid(pid()) -> string().
 get_clusterid(Pid) ->
     get_clusterid(Pid, ?DEFAULT_TIMEOUT).
 
 get_clusterid(Pid, Timeout) ->
     Pkt = riak_repl_pb:encode(#rpbreplgetclusteridreq{}),
     {ok, {?PB_MSG_RESP_CLUSTER_ID, Msg}} = riakc_pb_socket:tunnel(Pid, ?PB_MSG_GET_CLUSTER_ID,
-        Pkt, Timeout),
-    {ok, riak_repl_pb:decode_rpbreplgetclusteridresp(Msg)}.
+                                                                  Pkt, Timeout),
+    Resp = riak_repl_pb:decode_rpbreplgetclusteridresp(Msg),
+    case Resp of
+        {rpbreplgetclusteridresp,<<ClusterId/bytes>>} ->
+            {ok, binary_to_list(ClusterId)};
+        Other -> Other
+    end.
 
 %%% internal functions
 
