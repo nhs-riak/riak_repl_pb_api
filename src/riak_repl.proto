@@ -19,6 +19,6 @@ message RpbReplGetClusterIdReq {
 
 // Get Cluster Id response
 message RpbReplGetClusterIdResp {
-    repeated bytes cluster_id = 1;
+    required bytes cluster_id = 1;
 }
 
