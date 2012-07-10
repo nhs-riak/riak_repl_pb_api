@@ -34,7 +34,9 @@ get_clusterid(Pid) ->
     get_clusterid(Pid, ?DEFAULT_TIMEOUT).
 
 get_clusterid(Pid, Timeout) ->
-    riakc_pb_socket:tunnel(Pid, ?PB_MSG_GET_CLUSTER_ID, <<>>, Timeout).
+    Pkt = riak_repl_pb:encode(#rpbreplgetclusteridreq{}),
+    io:format("get_clusterid: Pkt=~p~n", [Pkt]),
+    riakc_pb_socket:tunnel(Pid, ?PB_MSG_GET_CLUSTER_ID, Pkt, Timeout).
 
 %%% internal functions
 

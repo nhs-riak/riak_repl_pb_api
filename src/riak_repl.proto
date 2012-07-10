@@ -13,7 +13,12 @@ message RpbReplGetReq {
     optional bool deletedvclock = 10;   // return the tombstone's vclock, if applicable
 }
 
-// Get Cluster Id from local cluster
+// Get Cluster Id request
 message RpbReplGetClusterIdReq {
+}
+
+// Get Cluster Id response
+message RpbReplGetClusterIdResp {
+    repeated bytes cluster_id = 1;
 }
 
