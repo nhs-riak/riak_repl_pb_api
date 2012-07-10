@@ -8,6 +8,7 @@
 %% Tunneled proxy-get (over the erlang client api)
 -define(PB_MSG_PROXY_GET, 128).
 -define(PB_MSG_GET_CLUSTER_ID, 129).
+-define(PB_MSG_RESP_CLUSTER_ID, 130).
 
 -export([get/4, get/5, get/6,
          get_clusterid/1, get_clusterid/2]).
@@ -27,7 +28,9 @@ get(Pid, Bucket, Key, ClusterName, Options, Timeout) ->
     Req = get_options(Options, #rpbreplgetreq{bucket = Bucket, key = Key,
                                               cluster_id = ClusterName}),
     Pkt = riak_repl_pb:encode(Req),
-    riakc_pb_socket:tunnel(Pid, ?PB_MSG_PROXY_GET, Pkt, Timeout).
+    {ok, {MsgCode, Msg}} = riakc_pb_socket:tunnel(Pid, ?PB_MSG_PROXY_GET, Pkt,
+        Timeout),
+    {ok, riak_pb_codec:decode(MsgCode, Msg)}.
 
 %% @doc Send a request to get the cluster id (unique cluster name with timestamp)
 get_clusterid(Pid) ->
@@ -35,8 +38,9 @@ get_clusterid(Pid) ->
 
 get_clusterid(Pid, Timeout) ->
     Pkt = riak_repl_pb:encode(#rpbreplgetclusteridreq{}),
-    io:format("get_clusterid: Pkt=~p~n", [Pkt]),
-    riakc_pb_socket:tunnel(Pid, ?PB_MSG_GET_CLUSTER_ID, Pkt, Timeout).
+    {ok, {?PB_MSG_RESP_CLUSTER_ID, Msg}} = riakc_pb_socket:tunnel(Pid, ?PB_MSG_GET_CLUSTER_ID,
+        Pkt, Timeout),
+    {ok, riak_repl_pb:decode_rpbreplgetclusteridresp(Msg)}.
 
 %%% internal functions
 
