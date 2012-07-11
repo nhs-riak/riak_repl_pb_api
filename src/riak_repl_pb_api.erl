@@ -17,18 +17,18 @@
 
 -define(DEFAULT_TIMEOUT, 60000).
 
-get(Pid, Bucket, Key, ClusterName) ->
-    get(Pid, Bucket, Key, ClusterName, [], ?DEFAULT_TIMEOUT).
+get(Pid, Bucket, Key, ClusterID) ->
+    get(Pid, Bucket, Key, ClusterID, [], ?DEFAULT_TIMEOUT).
 
-get(Pid, Bucket, Key, ClusterName, Timeout) when is_integer(Timeout);
+get(Pid, Bucket, Key, ClusterID, Timeout) when is_integer(Timeout);
                                                  Timeout == infinity ->
-    get(Pid, Bucket, Key, ClusterName, [], Timeout);
-get(Pid, Bucket, Key, ClusterName, Options) ->
-    get(Pid, Bucket, Key, ClusterName, Options, ?DEFAULT_TIMEOUT).
+    get(Pid, Bucket, Key, ClusterID, [], Timeout);
+get(Pid, Bucket, Key, ClusterID, Options) ->
+    get(Pid, Bucket, Key, ClusterID, Options, ?DEFAULT_TIMEOUT).
 
-get(Pid, Bucket, Key, ClusterName, Options, Timeout) ->
+get(Pid, Bucket, Key, ClusterID, Options, Timeout) ->
     Req = get_options(Options, #rpbreplgetreq{bucket = Bucket, key = Key,
-                                              cluster_id = ClusterName}),
+                                              cluster_id = ClusterID}),
     Pkt = riak_repl_pb:encode(Req),
     {ok, {MsgCode, Msg}} = riakc_pb_socket:tunnel(Pid, ?PB_MSG_PROXY_GET, Pkt,
         Timeout),
