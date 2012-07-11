@@ -33,10 +33,15 @@ get(Pid, Bucket, Key, ClusterID, Options, Timeout) ->
     {ok, {MsgCode, Msg}} = riakc_pb_socket:tunnel(Pid, ?PB_MSG_PROXY_GET, Pkt,
         Timeout),
     case riak_pb_codec:decode(MsgCode, Msg) of
+        rpbgetresp ->
+            {error, notfound};
+        #rpbgetresp{vclock = VClock, content=undefined} ->
+            {error, deleted, VClock};
         #rpbgetresp{content = RpbContents, vclock = Vclock} ->
             Contents = riak_pb_kv_codec:decode_contents(RpbContents),
             {ok, riakc_obj:new_obj(Bucket, Key, Vclock, Contents)};
-        Other -> Other %% this is likely the {error, notfound} response
+        Other ->
+            Other
     end.
 
 %% @doc Get the cluster id (unique cluster name with timestamp) of the local cluster
