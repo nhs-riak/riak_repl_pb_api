@@ -56,7 +56,7 @@ get_clusterid(Pid, Timeout) ->
     Resp = riak_repl_pb:decode_rpbreplgetclusteridresp(Msg),
     case Resp of
         {rpbreplgetclusteridresp,<<ClusterId/bytes>>} ->
-            {ok, binary_to_list(ClusterId)};
+            {ok, ClusterId};
         Other -> Other
     end.
 
