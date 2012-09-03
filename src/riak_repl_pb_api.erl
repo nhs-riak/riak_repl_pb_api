@@ -51,13 +51,18 @@ get_clusterid(Pid) ->
 
 get_clusterid(Pid, Timeout) ->
     Pkt = riak_repl_pb:encode(#rpbreplgetclusteridreq{}),
-    {ok, {?PB_MSG_RESP_CLUSTER_ID, Msg}} = riakc_pb_socket:tunnel(Pid, ?PB_MSG_GET_CLUSTER_ID,
-                                                                  Pkt, Timeout),
-    Resp = riak_repl_pb:decode_rpbreplgetclusteridresp(Msg),
-    case Resp of
-        {rpbreplgetclusteridresp,<<ClusterId/bytes>>} ->
-            {ok, ClusterId};
-        Other -> Other
+    case riakc_pb_socket:tunnel(Pid, ?PB_MSG_GET_CLUSTER_ID,
+                                               Pkt, Timeout) of
+        {ok, {?PB_MSG_RESP_CLUSTER_ID, Msg}} ->
+            Resp = riak_repl_pb:decode_rpbreplgetclusteridresp(Msg),
+            case Resp of
+                {rpbreplgetclusteridresp,<<ClusterId/bytes>>} ->
+                    {ok, ClusterId};
+                Other -> Other
+            end;
+        {ok, {MsgCode, MsgData}} ->
+            %% something else, probably an error
+            riak_pb_codec:decode(MsgCode, MsgData)
     end.
 
 %%% internal functions
