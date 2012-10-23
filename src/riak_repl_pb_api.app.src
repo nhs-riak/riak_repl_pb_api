@@ -1,6 +1,6 @@
 {application, riak_repl_pb_api, [
     {description, "Protobuffs API for riak MDC"},
-    {vsn, "0.1.0"},
+    {vsn, "0.1.1"},
     {applications, [kernel, stdlib]},
     {registered, []}
 ]}.
