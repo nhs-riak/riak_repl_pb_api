@@ -82,5 +82,11 @@ get_options([{if_modified, VClock} | Rest], Req) ->
     get_options(Rest, Req#rpbreplgetreq{if_modified = VClock});
 get_options([head | Rest], Req) ->
     get_options(Rest, Req#rpbreplgetreq{head = true});
+get_options([{n_val, N} | Rest], Req)
+  when is_integer(N), N > 0 ->
+    get_options(Rest, Req#rpbreplgetreq{n_val = N});
+get_options([{sloppy_quorum, Bool} | Rest], Req)
+  when Bool == true; Bool == false ->
+    get_options(Rest, Req#rpbreplgetreq{sloppy_quorum = Bool});
 get_options([deletedvclock | Rest], Req) ->
     get_options(Rest, Req#rpbreplgetreq{deletedvclock = true}).
