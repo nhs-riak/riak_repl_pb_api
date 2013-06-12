@@ -11,6 +11,8 @@ message RpbReplGetReq {
     optional bytes if_modified = 8;     // fail if the supplied vclock does not match
     optional bool head = 9;             // return everything but the value
     optional bool deletedvclock = 10;   // return the tombstone's vclock, if applicable
+    optional bool sloppy_quorum = 11;   // Experimental, may change/disappear
+    optional uint32 n_val = 12;         // Experimental, may change/disappear
 }
 
 // Get Cluster Id request
