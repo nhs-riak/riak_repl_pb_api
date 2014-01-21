@@ -30,18 +30,21 @@ get(Pid, Bucket, Key, ClusterID, Options, Timeout) ->
     Req = get_options(Options, #rpbreplgetreq{bucket = Bucket, key = Key,
                                               cluster_id = ClusterID}),
     Pkt = riak_repl_pb:encode(Req),
-    {ok, {MsgCode, Msg}} = riakc_pb_socket:tunnel(Pid, ?PB_MSG_PROXY_GET, Pkt,
-        Timeout),
-    case riak_pb_codec:decode(MsgCode, Msg) of
-        rpbgetresp ->
-            {error, notfound};
-        #rpbgetresp{vclock = VClock, content=undefined} ->
-            {error, deleted, VClock};
-        #rpbgetresp{content = RpbContents, vclock = Vclock} ->
-            Contents = riak_pb_kv_codec:decode_contents(RpbContents),
-            {ok, riakc_obj:new_obj(Bucket, Key, Vclock, Contents)};
-        Other ->
-            Other
+    case riakc_pb_socket:tunnel(Pid, ?PB_MSG_PROXY_GET, Pkt, Timeout) of
+        {ok, {MsgCode, Msg}} ->
+            case riak_pb_codec:decode(MsgCode, Msg) of
+                rpbgetresp ->
+                    {error, notfound};
+                #rpbgetresp{vclock = VClock, content=undefined} ->
+                    {error, deleted, VClock};
+                #rpbgetresp{content = RpbContents, vclock = Vclock} ->
+                    Contents = riak_pb_kv_codec:decode_contents(RpbContents),
+                    {ok, riakc_obj:new_obj(Bucket, Key, Vclock, Contents)};
+                Other ->
+                    Other
+            end;
+        {error, disconnected} ->
+            {error, notfound}
     end.
 
 %% @doc Get the cluster id (unique cluster name with timestamp) of the local cluster
