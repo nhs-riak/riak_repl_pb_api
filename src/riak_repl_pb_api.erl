@@ -45,7 +45,7 @@ get(Pid, Bucket, Key, ClusterID, Options, Timeout) ->
     end.
 
 %% @doc Get the cluster id (unique cluster name with timestamp) of the local cluster
--spec get_clusterid(pid()) -> string().
+-spec get_clusterid(pid()) -> term().
 get_clusterid(Pid) ->
     get_clusterid(Pid, ?DEFAULT_TIMEOUT).
 
