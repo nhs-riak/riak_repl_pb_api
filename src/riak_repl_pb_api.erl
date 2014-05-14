@@ -17,15 +17,21 @@
 
 -define(DEFAULT_TIMEOUT, 60000).
 
+-spec get(pid(), binary(), binary(), binary()) ->
+                 {ok, RiakObj::term()} | {error, term()}.
 get(Pid, Bucket, Key, ClusterID) ->
     get(Pid, Bucket, Key, ClusterID, [], ?DEFAULT_TIMEOUT).
 
+-spec get(pid(), binary(), binary(), binary(), non_neg_integer()) ->
+                 {ok, RiakObj::term()} | {error, term()}.
 get(Pid, Bucket, Key, ClusterID, Timeout) when is_integer(Timeout);
                                                  Timeout == infinity ->
     get(Pid, Bucket, Key, ClusterID, [], Timeout);
 get(Pid, Bucket, Key, ClusterID, Options) ->
     get(Pid, Bucket, Key, ClusterID, Options, ?DEFAULT_TIMEOUT).
 
+-spec get(pid(), binary(), binary(), binary(), proplists:proplist(), non_neg_integer()) ->
+                 {ok, RiakObj::term()} | {error, term()}.
 get(Pid, Bucket, Key, ClusterID, Options, Timeout) ->
     Req = get_options(Options, #rpbreplgetreq{bucket = Bucket, key = Key,
                                               cluster_id = ClusterID}),
@@ -43,15 +49,17 @@ get(Pid, Bucket, Key, ClusterID, Options, Timeout) ->
                 Other ->
                     Other
             end;
-        {error, disconnected} ->
-            {error, notfound}
+        {error, _} = E ->
+            E
     end.
 
 %% @doc Get the cluster id (unique cluster name with timestamp) of the local cluster
--spec get_clusterid(pid()) -> term().
+-spec get_clusterid(pid()) -> {ok, binary()} | {error, term()}.
 get_clusterid(Pid) ->
     get_clusterid(Pid, ?DEFAULT_TIMEOUT).
 
+-spec get_clusterid(pid(), non_neg_integer()) ->
+                           {ok, binary()} | {error, term()}.
 get_clusterid(Pid, Timeout) ->
     Pkt = riak_repl_pb:encode(#rpbreplgetclusteridreq{}),
     case riakc_pb_socket:tunnel(Pid, ?PB_MSG_GET_CLUSTER_ID,
@@ -65,12 +73,14 @@ get_clusterid(Pid, Timeout) ->
             end;
         {ok, {MsgCode, MsgData}} ->
             %% something else, probably an error
-            riak_pb_codec:decode(MsgCode, MsgData)
+            riak_pb_codec:decode(MsgCode, MsgData);
+        {error, _} = E -> E
     end.
 
 %%% internal functions
 
 %% taken from riak_erlang_client
+-spec get_options(proplists:proplist(), #rpbreplgetreq{}) -> #rpbreplgetreq{}.
 get_options([], Req) ->
     Req;
 get_options([{basic_quorum, BQ} | Rest], Req) ->
