@@ -1,0 +1,5 @@
+deps
+ebin
+include/riak_repl_pb.hrl
+.eunit
+.local_dialyzer_plt
