@@ -1,0 +1,19 @@
+## Generated protobuffs code
+riak_repl_pb.erl:47: Guard test is_list(Records::tuple()) can never succeed
+riak_repl_pb.erl:72: The pattern <_, 'repeated', 'undefined', _, _> can never match the type <1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12,'optional' | 'required',_,'bool' | 'bytes' | 'uint32',[]>
+riak_repl_pb.erl:74: The pattern <_, 'repeated_packed', 'undefined', _, _> can never match the type <1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12,'optional' | 'required',_,'bool' | 'bytes' | 'uint32',[]>
+riak_repl_pb.erl:75: The pattern <_, 'repeated_packed', [], _, _> can never match the type <1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12,'optional' | 'required',_,'bool' | 'bytes' | 'uint32',[]>
+riak_repl_pb.erl:80: The pattern <_, 'repeated', [], _, Acc> can never match the type <1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12,'optional' | 'required',_,'bool' | 'bytes' | 'uint32',[]>
+riak_repl_pb.erl:83: The pattern <FNum, 'repeated', [Head | Tail], Type, Acc> can never match the type <1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12,'optional' | 'required',_,'bool' | 'bytes' | 'uint32',[]>
+riak_repl_pb.erl:86: The pattern <FNum, 'repeated_packed', Data, Type, _> can never match the type <1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12,'optional' | 'required',_,'bool' | 'bytes' | 'uint32',[]>
+riak_repl_pb.erl:101: The call riak_repl_pb:enum_to_int(Type::'bool' | 'bytes' | 'uint32',Data::atom()) will never return since it differs in the 1st argument from the success typing arguments: ('pikachu','value')
+riak_repl_pb.erl:148: The pattern 'true' can never match the type 'false'
+riak_repl_pb.erl:154: The pattern 'true' can never match the type 'false'
+riak_repl_pb.erl:163: The pattern 'true' can never match the type 'false'
+riak_repl_pb.erl:175: The pattern {_, _, Dict} can never match the type 'false'
+riak_repl_pb.erl:193: The pattern 'true' can never match the type 'false'
+riak_repl_pb.erl:202: The pattern <Binary, 'string'> can never match the type <_,'bool' | 'bytes' | 'uint32'>
+riak_repl_pb.erl:222: The pattern <Types, [{Fnum, Bytes} | Tail], Acc> can never match the type <_,[],[{_,_}]>
+Unknown functions:
+  riakc_obj:new_obj/4
+  riakc_pb_socket:tunnel/4
