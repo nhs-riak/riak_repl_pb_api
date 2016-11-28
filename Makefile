@@ -4,14 +4,18 @@ DIALYZER_APPS = kernel stdlib sasl erts inets crypto
 
 all: deps compile test
 
+include tools.mk
+
 compile:
-	@./rebar compile
+	@$(REBAR) compile
 
 deps:
-	@./rebar get-deps
+	@$(REBAR) get-deps
 
 clean:
-	@./rebar clean
+	@$(REBAR) clean
 
-
-include tools.mk
+protogen:
+	@$(REBAR) --config protogen.config clean
+	@$(REBAR) --config protogen.config get-deps
+	@$(REBAR) --config protogen.config compile
